@@ -10,6 +10,7 @@ namespace App\Http\Controllers;
 
 use App\FileSystem;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\Storage;
 
 class ProxyController extends Controller
@@ -45,20 +46,17 @@ class ProxyController extends Controller
         $files = $this->collectFiles($tempDir);
 
         $error = null;
+        $response = null;
 
         try {
-            $result = $this->sendRequest($method, $url, $params, $files);
-        } catch (\Throwable $e) {
-            $error = $e;
+            $response = $this->sendRequest($method, $url, $params, $files);
+        } catch (ClientException $e) {
+            $response = $e->getResponse();
         }
 
         FileSystem::remove(storage_path('app') . DIRECTORY_SEPARATOR . $tempDir);
 
-        if (!empty($error)) {
-            throw $error;
-        }
-
-        return response($result->getBody()->getContents(), $result->getStatusCode())
+        return response($response->getBody()->getContents(), $response->getStatusCode())
             ->header('Content-Type', 'application/json; charset=UTF-8');
     }
 
