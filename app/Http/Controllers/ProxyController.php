@@ -29,7 +29,7 @@ class ProxyController extends Controller
 
     protected function proximateRequest($accessToken)
     {
-        $url = 'https://graph.facebook.com' . request()->path();
+        $url = 'https://graph.facebook.com/' . preg_replace('#^/+#', '', request()->path());
         $method = request()->getMethod();
         $params = $this->collectParams();
 
