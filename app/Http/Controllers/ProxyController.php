@@ -17,19 +17,19 @@ class ProxyController extends Controller
 {
     public function proxy()
     {
+        $pathParts = explode('/', request()->path());
+        if (count($pathParts) <= 1) {
+            return abort(400, 'account_id is empty');
+        }
+
+        $accountId = array_reverse($pathParts)[0];
+
         //TODO check access
         $accessToken = request('access_token')
                        ?? request()->query('access_token');
 
         if (empty($accessToken)) {
             return abort(400, 'access_token is empty');
-        }
-
-        $accountId = request('account_id')
-                     ?? request()->query('account_id');
-
-        if (empty($accountId)) {
-            return abort(400, 'account_id is empty');
         }
 
         return $this->proximateRequest($accessToken, $accountId);
