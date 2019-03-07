@@ -17,14 +17,6 @@ class ProxyController extends Controller
 {
     public function proxy()
     {
-        $pathParts = explode('/', request()->path());
-        if (count($pathParts) <= 1) {
-            return abort(400, 'account_id is empty');
-        }
-
-        $accountId = array_reverse($pathParts)[0];
-
-        //TODO check access
         $accessToken = request('access_token')
                        ?? request()->query('access_token');
 
@@ -32,12 +24,12 @@ class ProxyController extends Controller
             return abort(400, 'access_token is empty');
         }
 
-        return $this->proximateRequest($accessToken, $accountId);
+        return $this->proximateRequest($accessToken);
     }
 
-    protected function proximateRequest($accessToken, $accountId)
+    protected function proximateRequest($accessToken)
     {
-        $url = 'https://graph.facebook.com/v2.11/act_' . $accountId . '/';
+        $url = 'https://graph.facebook.com' . request()->path();
         $method = request()->getMethod();
         $params = $this->collectParams();
 
